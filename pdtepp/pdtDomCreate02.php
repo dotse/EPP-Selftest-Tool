@@ -86,11 +86,6 @@ $exCode=-1;
 $domain = $config[$phase][$phase.'Name'];
 $period = strtolower($config[$phase][$phase.'Period']);
 $pno = $config[$phase][$phase.'PeriodValue'];
-$registrant = $config[$phase][$phase.'RegistrantId'];
-$admin = $config[$phase][$phase.'AdminId'];
-$billing = $config[$phase][$phase.'BillingId'];
-$tech = $config[$phase][$phase.'TechId'];
-$authPw = $config[$phase][$phase.'AuthPw'];
 $ns01 = $config[$phase][$phase.'Ns01'];
 $ns01ipv4 = $config[$phase][$phase.'Ns01Ipv4'];
 $ns01ipv6 = $config[$phase][$phase.'Ns01Ipv6'];
@@ -105,50 +100,6 @@ if (isset($config['EppConnTest']['EppNsHostUri'] ) ) {
 // To handle create we user pdt EppDomCreate01's nameserver to create the domain so that we can then update it.
 $oldns01 = $config["EppDomCreate01"]['EppDomCreate01Ns01'];
 $oldns02 = $config["EppDomCreate01"]['EppDomCreate01Ns02'];
-
-//print "Dom:".$domain.".persio=".$period.",pno=".$pno.",registrant=".$registrant."\n";
-//print "Ns1:".$ns01.".ipv4=".$ns01ipv4.",ipv6=".$ns01ipv6."\n";
-//print "Ns2:".$ns02.".ipv4=".$ns02ipv4.",ipv6=".$ns02ipv6."\n";
-
-# Transition - to be able to do both old ones (create) and new ones (only update)
-# we check ig the domain exists and if not - tries to create ir
-if ($con->domCheck($domain) == 1) {
-	$domCre = new ireg_domain;
-	$domCre->name = $domain;
-	$domCre->insCont('owner', $registrant);
-	if ($admin != "") {
-		$domCre->insCont('admin', $admin);
-	}
-	if ($billing != "") {
-		$domCre->insCont('billing', $billing);
-	}
-	if ($tech != "") {
-		$domCre->insCont('tech', $tech);
-	}
-	$domCre->authPw = $authPw;
-	$domCre->insNs(array('name'=>$oldns01, 'addr_v4'=>array(), 'addr_v6'=>array()));
-	$domCre->insNs(array('name'=>$oldns02, 'addr_v4'=>array(), 'addr_v6'=>array()));
-	if ($con->domCreate($domCre, $pno, $period)) {
-		if (($con->getResCode() != "1000") && ($con->getResCode() != "1001")) {
-			print "Domain Create (".$domain.") FAILED - ResultCOde != 1000 or 1001 (".$con->getResCode().")\n";
-			$con->disconnect();
-			exit (1);
-		} else {
-			print "Domain Create (".$domain.") OK - ResultCode = ".$con->getResCode()."\n";
-			$exCode=0;
-		}
-	} else {
-		$reason=$con->getErrorReason();
-		if (isset($reason) && $reason != '') {
-		  $reason=" (".$reason.")";
-		} else {
-		  $reason="";
-		}
-		print "Domain create FAILED - ".$con->getResCode()." - ".$con->getResMsg().$reason."\n";
-		$con->disconnect();
-		exit (1);
-	}
-}
 
 if ($hostObj == true) {
 	// Create Ns01

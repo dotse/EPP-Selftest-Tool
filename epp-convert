@@ -158,15 +158,12 @@ sub eppCreateIni {
         $p =~ s/^$//mg;      # Remove completely empty lines
         print $fh "$p";
         close $fh;
-        my $pdtpw = 'pdtpwd';  # TODO: fix crappy hardcoded password
-
-        # Convert from base64 via p12 to pem
-        system("exec 1>&2 ; base64 -d < $tmp | openssl pkcs12 -passin 'pass:$pw' -out $out_cert -passout 'pass:$pdtpw'");
+        system("exec 1>&2 ; openssl base64 -d -in $tmp | openssl pkcs12 -passin 'pass:$pw' -out $out_cert -passout 'pass:$pw'");
 
         # Remove tmp file
         unlink $tmp;
 
-        print $out "EppClientKeyPairPwd     = '$pdtpw'\n";
+        print $out "EppClientKeyPairPwd     = '$pw'\n";
     } else {
         print $out "EppClientCertificate    = no\n";
         print $out "EppClientKeyPairPwd     = \n";
@@ -231,11 +228,6 @@ sub eppCreateIni {
     print $out "EppDomCreate02Name              = ".$input->{'DomainCreate02'}->{'Name'}."\n";
     print $out "EppDomCreate02Period            = ".prdef($input->{'DomainCreate02'}->{'Period'}->{'Type'})."\n";
     print $out "EppDomCreate02PeriodValue       = ".prdef($input->{'DomainCreate02'}->{'Period'}->{'Value'})."\n";
-    print $out "EppDomCreate02RegistrantId      = ".$input->{'DomainCreate02'}->{'RegistrantId'}."\n";
-    print $out "EppDomCreate02AdminId           = '".prdef($input->{'DomainCreate02'}->{'Admin'})."'\n";
-    print $out "EppDomCreate02TechId            = '".prdef($input->{'DomainCreate02'}->{'Tech'})."'\n";
-    print $out "EppDomCreate02BillingId         = '".prdef($input->{'DomainCreate02'}->{'Billing'})."'\n";
-    print $out "EppDomCreate02AuthPw            = '".prdef($input->{'DomainCreate02'}->{'AuthPw'})."'\n";
     print STDERR "WARNING: EppDomCreate02:Ns01: ".$input->{'DomainCreate02'}->{'NS01'}->{'Name'}." not subordinate\n" if (not $input->{'DomainCreate02'}->{'NS01'}->{'Name'} =~ m/$domain02$/i) ;
     print $out "EppDomCreate02Ns01              = ".$input->{'DomainCreate02'}->{'NS01'}->{'Name'}."\n";
     print $out "EppDomCreate02Ns01Ipv4          = ".$input->{'DomainCreate02'}->{'NS01'}->{'IPv4'}."\n";

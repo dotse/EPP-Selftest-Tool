@@ -1,4 +1,4 @@
-<?
+<?php
 # Copyright (c) 2009 YASK AB
 # All rights reserved.
 #
