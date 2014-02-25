@@ -49,6 +49,7 @@ class ireg {
 	private $port;
 	private $timeout;
 	private $ssl;
+	private $sniname;
 	private $epp;
 	private $resCode;
 	private $msg;
@@ -112,6 +113,9 @@ class ireg {
         private function initialize($init) {
 		$this->host	= $init['tld']['epphost'];
 		$this->port	= $init['tld']['eppport'];
+		if (isset($init['tld']['eppsniname'])) {
+			$this->sniname	= $init['tld']['eppsniname'];
+		}
 		$this->timeout	= $init['tld']['epptimeout'];
 		if ($init['tld']['eppssl'] == 'true') {
 			$this->ssl	= true;
@@ -226,7 +230,7 @@ class ireg {
 		//- Create the login xml ----------------------------------------------------
 		$doc = $this->eppCreateDom();
 		$root = $this->eppCreateRoot($doc);
-  
+
 		// Build the command
 		$cmd = $this->eppCreateLogin($root, $doc, $this->epp_user, $this->epp_pwd);
 		$this->eppCreateCltrid($cmd, $doc);
@@ -290,7 +294,7 @@ class ireg {
 		//- Create the logout xml ---------------------------------------------------
 		$doc = $this->eppCreateDom();
 		$root = $this->eppCreateRoot($doc);
-		  
+
 		// Create the command
 		$cmd   = $root->appendChild( $doc->createElement( 'command' ) );
 		$cmd->appendChild( $doc->createElement( 'logout' ) );

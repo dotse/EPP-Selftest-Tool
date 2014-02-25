@@ -147,7 +147,7 @@
 		* @param boolean whether to connect using SSL
 		* @return PEAR_Error|string a PEAR_Error on failure, or a string containing the server <greeting>
 		*/
-		function connect($host, $port=700, $timeout=1, $ssl=true) {
+		function connect($host, $port=700, $timeout=1, $ssl=true, $sniname=NULL) {
 			$target = sprintf('%s://[%s]:%d', ($ssl === true ? 'ssl' : 'tcp'), $host, $port);
 			$errno='';
 			$errstr='';
@@ -155,6 +155,10 @@
 				$context = stream_context_create();
 				$result = stream_context_set_option($context, 'ssl', 'local_cert', $this->local_cert_path);
 				$result = stream_context_set_option($context, 'ssl', 'passphrase', $this->local_cert_pwd);
+				if (isset($sniname)) {
+				   	$result = stream_context_set_option($context, 'ssl', 'SNI_enabled', True);
+					$result = stream_context_set_option($context, 'ssl', 'SNI_server_name', $sniname);
+				}
 				if (!$this->socket = @stream_socket_client($target, $errno, $errstr, $timeout, STREAM_CLIENT_CONNECT, $context)) {
 					return new PEAR_Error("Error connecting to $target: $errstr (code $errno)");
 				} else {
